@@ -1,6 +1,8 @@
-# Discord Rich Presence for Xcode
+# Discord Rich Presence for Xcode (No-Idle Fork)
 
-A simple Discord Rich Presence client for Xcode
+> **Note:** This is a modified fork of the original [xcode-discord-rpc by izyuumi](https://github.com/izyuumi/xcode-discord-rpc). The key change in this version is the complete removal of the idle-status feature.
+
+A simple Discord Rich Presence client for Xcode. Your status will remain active as long as a project is open.
 
 <p align="center">
   <img src="readme.png" width="400" style="max-width: 100%; height: auto;" />
@@ -10,52 +12,43 @@ A simple Discord Rich Presence client for Xcode
 
 - Launched in the background at login
 - No menu bar icon nor dock icon
-- Presence only when Xcode is running with a project open
-- Shows respective logos when editing [known files](#supported-file-types) and
-  Xcode icon otherwise
+- **Presence is active as long as Xcode is running with a project open (No idle status)**
+- Shows respective logos when editing [known files](#supported-file-types) and Xcode icon otherwise
 - Written 100% in Rust
 
 ## Getting Started
 
-### Installation with Homebrew
+### Installation from Source
 
-```bash
-brew install izyumidev/xcode-discord-rpc/xcode-discord-rpc
-brew services restart xcode-discord-rpc
-```
+Since this is a custom version, it needs to be built from the source code.
 
-If things are not working, restart Discord and/or your computer.
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/YOUR-USERNAME/xcode-discord-rpc.git](https://github.com/YOUR-USERNAME/xcode-discord-rpc.git)
+    cd xcode-discord-rpc
+    ```
+
+2.  **Build the project:**
+    ```bash
+    cargo build --release
+    ```
+
+3.  **Install the executable:**
+    ```bash
+    sudo cp target/release/xcode-discord-rpc /usr/local/bin/
+    ```
+
+4.  **Grant permissions:** You must manually grant Automation permissions for the application to control Xcode.
+    - Go to **System Settings** > **Privacy & Security** > **Automation**.
+    - Click `+`, navigate to `/usr/local/bin/`, and add `xcode-discord-rpc`.
+    - Ensure the checkbox for **Xcode** is enabled.
+
+5.  **Run the application:**
+    ```bash
+    xcode-discord-rpc
+    ```
 
 ### Uninstallation
 
 ```bash
-brew services stop xcode-discord-rpc && brew uninstall xcode-discord-rpc && brew untap izyumidev/xcode-discord-rpc
-```
-
-## Configuration
-
-You can override the default configuration by creating a file at `~/.config/xcode-discord-rpc/config.toml` or by setting environment variables. For more details, see the [configuration documentation](docs/config.md).
-
-## Supported File Types
-
-- `.swift`
-- `.cpp`, `.cp`, `cxx`
-- `.c`
-- `.h`, `.m`, `.mm`
-- `.java`
-- `.json`
-- `.rb`
-- `.metal`
-
-Please [create an issue](https://github.com/izyuumi/xcode-discord-rpc/issues/new/choose) if you desire for more file types to be supported.
-
-Images are created on this figma file:
-https://www.figma.com/file/yNH9oBUxf6t4x3AXv6Xrd0/xcode-discord-rpc
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
-for details.
-
-I do not own the logos used in this project. They are the property of their
-respective owners.
+sudo rm /usr/local/bin/xcode-discord-rpc

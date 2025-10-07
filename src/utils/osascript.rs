@@ -58,14 +58,29 @@ pub fn current_project() -> Result<String> {
     Ok(project)
 }
 
-/// Check if frontmost application is Xcode
-pub fn is_xcode_frontmost() -> Result<bool> {
-    let frontmost_app = run_osascript(
-        r#"
-        if frontmost of application "Xcode" is true then
-            return "Xcode"
-        end if
-    "#,
-    )?;
-    Ok(frontmost_app == "Xcode")
-}
+// pub fn current_file_path() -> Result<String> {
+//     run_osascript(
+//         r#"
+//         tell application "Xcode"
+//             try 
+//                 return path of document of front window
+//             on error
+//                 return ""
+//             end try
+//         end tell
+//     "#,
+//     )
+// }
+
+
+// /// Check if frontmost application is Xcode
+// pub fn is_xcode_frontmost() -> Result<bool> {
+//     let frontmost_app = run_osascript(
+//         r#"
+//         if frontmost of application "Xcode" is true then
+//             return "Xcode"
+//         end if
+//     "#,
+//     )?;
+//     Ok(frontmost_app == "Xcode")
+// }

@@ -8,7 +8,7 @@ use crate::{
     utils::{
         current_time,
         file_language::{FileExtention, FileLanguage, ToFileLanguage},
-        osascript::{check_xcode, current_file, current_project, is_xcode_frontmost},
+        osascript::{check_xcode, current_file, current_project},
         sleep,
     },
     Result,
@@ -144,28 +144,32 @@ impl XcodeState<'_> {
     fn handle_discord_session(&mut self) -> Result<()> {
         let mut started_at = Timestamps::new().start(current_time() * 1000);
         let mut project_before = String::from("");
-        let mut last_frontmost_at = current_time();
+        // let mut last_frontmost_at = current_time();
 
         self.reset_sleep_multiplier();
 
         while self.xcode_is_running {
             log::debug!("Xcode is running");
 
-            self.update_frontmost_time(&mut last_frontmost_at)?;
+            // self.update_frontmost_time(&mut last_frontmost_at)?;
+
             let project = self.get_current_project()?;
+
+            if project.is_empty(){
+                self.clear_activity()?;
+                self.sleep_xcode_update();
+                self.check_xcode()?;
+                continue;
+            }
 
             if !project_before.eq(&project) {
                 started_at = Timestamps::new().start(current_time() * 1000);
                 project_before = project.clone();
             }
 
-            let is_idle = current_time() - last_frontmost_at > self.config.idle_threshold;
+            //let is_idle = current_time() - last_frontmost_at > self.config.idle_threshold;
 
-            if project.is_empty() || is_idle {
-                self.set_idle_activity(&started_at)?;
-                continue;
-            }
-
+            
             self.set_working_activity(&project, &started_at)?;
             self.sleep_xcode_update();
             self.check_xcode()?;
@@ -174,12 +178,12 @@ impl XcodeState<'_> {
     }
 
     /// Updates the timestamp for when Xcode was last in the foreground
-    fn update_frontmost_time(&self, last_frontmost_at: &mut i64) -> Result<()> {
-        if is_xcode_frontmost()? {
-            *last_frontmost_at = current_time();
-        }
-        Ok(())
-    }
+    // fn update_frontmost_time(&self, last_frontmost_at: &mut i64) -> Result<()> {
+    //     if is_xcode_frontmost()? {
+    //         *last_frontmost_at = current_time();
+    //     }
+    //     Ok(())
+    // }
 
     /// Retrieves current project name, respecting hide_project configuration
     fn get_current_project(&self) -> Result<String> {
@@ -191,24 +195,24 @@ impl XcodeState<'_> {
     }
 
     /// Sets Discord activity to idle state
-    fn set_idle_activity(&mut self, started_at: &Timestamps) -> Result<()> {
-        self.discord_ipc.set_activity(
-            Activity::new()
-                .timestamps(started_at.clone())
-                .assets(
-                    Assets::new()
-                        .large_text(FileLanguage::Unknown.get_text_asset_key())
-                        .large_image(FileLanguage::Unknown.get_image_asset_key()),
-                )
-                .details("Idle")
-                .state("Idle"),
-        )?;
-        log::info!("Updated activity: idle");
-        self.increase_sleep_multiplier();
-        self.sleep_discord_xcode();
-        self.check_xcode()?;
-        Ok(())
-    }
+    // fn set_idle_activity(&mut self, started_at: &Timestamps) -> Result<()> {
+    //     self.discord_ipc.set_activity(
+    //         Activity::new()
+    //             .timestamps(started_at.clone())
+    //             .assets(
+    //                 Assets::new()
+    //                     .large_text(FileLanguage::Unknown.get_text_asset_key())
+    //                     .large_image(FileLanguage::Unknown.get_image_asset_key()),
+    //             )
+    //             .details("Idle")
+    //             .state("Idle"),
+    //     )?;
+    //     log::info!("Updated activity: idle");
+    //     self.increase_sleep_multiplier();
+    //     self.sleep_discord_xcode();
+    //     self.check_xcode()?;
+    //     Ok(())
+    // }
 
     /// Sets Discord activity to working state with project and file information
     fn set_working_activity(&mut self, project: &str, started_at: &Timestamps) -> Result<()> {
